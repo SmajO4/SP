@@ -202,6 +202,7 @@ void List<T>::pop_front() {
     else
         tail = nullptr;
 
+    delete nodeToPop;
     --size_;
 }
 
