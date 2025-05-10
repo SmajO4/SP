@@ -1,5 +1,6 @@
 #pragma once
 #include <cstddef>
+#include <stdexcept>
 #include <utility>
 
 
@@ -50,9 +51,10 @@ class List {
           Iterator insert(Iterator pos, U&& data);
         Iterator erase(Iterator pos);
         Iterator erase(Iterator beginIt, Iterator endIt);
-        template <typename Predicate>
+        template <class Predicate>
           void remove_if(Predicate pred);
         void reverse();
+        void reverse_Iter();
         List split_front(Iterator pos);
 
         class Iterator {
@@ -215,25 +217,25 @@ size_t List<T>::size() const {
 
 template <class T>
 T& List<T>::front() {
-    if (empty()) return;
-    return head -> data;
+      if (empty()) std::runtime_error("List is empty");
+      return head -> data;
 }
 
 template <class T>
 const T& List<T>::front() const {
-    if (empty()) return;
+    if (empty()) std::runtime_error("List is empty");
     return head -> data;
 }
 
 template <class T>
 T& List<T>::back() {
-    if (empty()) return;
+    if (empty()) std::runtime_error("List is empty");
     return tail -> data;
 }
 
 template <class T>
 const T& List<T>::back() const {
-    if (empty()) return;
+    if (empty()) std::runtime_error("List is empty");
     return tail -> data;
 }
 
@@ -316,11 +318,32 @@ template <class T>
 void List<T>::reverse() {
     if (size_ <= 1) return;
 
-    Iterator front = begin();
-    Iterator back = --end();
+    Node<T>* curr = head;
+    Node<T>* temp = nullptr;
+    while (curr) {
+        temp = curr -> prev;
+        curr -> prev = curr -> next;
+        curr -> next = temp;
+        curr = curr -> prev;
+    }
+    temp = head;
+    head = tail;
+    tail = temp;
+}
 
-    for (size_t i = 0 ; i < size_/2 ; ++i)
-        std::swap(*front++, *back--);
+template <class T>
+void List<T>::reverse_Iter() {
+    if (size_ <= 1) return;
+
+    Iterator front = begin();
+    Iterator back = Iterator(tail);
+    // ogromna greska staviti ..= --end();
+
+    for (size_t i = 0 ; i < size_ / 2 ; ++i) {
+        std::swap(*front, *back);
+        ++front;
+        --back;
+    }
 }
 
 template <class T>
